@@ -1,140 +1,494 @@
-<img src="./.github/screenshots/header.png#gh-light-mode-only" width="100%" alt="Header light mode"/>
-<img src="./.github/screenshots/header-dark.png#gh-dark-mode-only" width="100%" alt="Header dark mode"/>
+# Complete Chatwoot Development Setup Guide for macOS
 
-___
+This comprehensive guide walks you through setting up a Chatwoot development environment on macOS, incorporating solutions for all common issues encountered during setup.
 
-# Chatwoot
+## Prerequisites
 
-The modern customer support platform, an open-source alternative to Intercom, Zendesk, Salesforce Service Cloud etc.
+- macOS with Homebrew installed
+- Basic terminal knowledge
+- Admin access to your machine
 
-<p>
-  <a href="https://codeclimate.com/github/chatwoot/chatwoot/maintainability"><img src="https://api.codeclimate.com/v1/badges/e6e3f66332c91e5a4c0c/maintainability" alt="Maintainability"></a>
-  <img src="https://img.shields.io/circleci/build/github/chatwoot/chatwoot" alt="CircleCI Badge">
-    <a href="https://hub.docker.com/r/chatwoot/chatwoot/"><img src="https://img.shields.io/docker/pulls/chatwoot/chatwoot" alt="Docker Pull Badge"></a>
-  <a href="https://hub.docker.com/r/chatwoot/chatwoot/"><img src="https://img.shields.io/docker/cloud/build/chatwoot/chatwoot" alt="Docker Build Badge"></a>
-  <img src="https://img.shields.io/github/commit-activity/m/chatwoot/chatwoot" alt="Commits-per-month">
-  <a title="Crowdin" target="_self" href="https://chatwoot.crowdin.com/chatwoot"><img src="https://badges.crowdin.net/e/37ced7eba411064bd792feb3b7a28b16/localized.svg"></a>
-  <a href="https://discord.gg/cJXdrwS"><img src="https://img.shields.io/discord/647412545203994635" alt="Discord"></a>
-  <a href="https://status.chatwoot.com"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fchatwoot%2Fstatus%2Fmaster%2Fapi%2Fchatwoot%2Fuptime.json" alt="uptime"></a>
-  <a href="https://status.chatwoot.com"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fchatwoot%2Fstatus%2Fmaster%2Fapi%2Fchatwoot%2Fresponse-time.json" alt="response time"></a>
-  <a href="https://artifacthub.io/packages/helm/chatwoot/chatwoot"><img src="https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/artifact-hub" alt="Artifact HUB"></a>
-</p>
+## Step 1: Install Core Dependencies
 
+### Install System Tools
+```bash
+# Install essential development tools
+brew install rbenv postgresql redis node
+```
 
-<p>
-  <a href="https://heroku.com/deploy?template=https://github.com/chatwoot/chatwoot/tree/master" alt="Deploy to Heroku">
-     <img width="150" alt="Deploy" src="https://www.herokucdn.com/deploy/button.svg"/>
-  </a>
-  <a href="https://marketplace.digitalocean.com/apps/chatwoot?refcode=f2238426a2a8" alt="Deploy to DigitalOcean">
-     <img width="200" alt="Deploy to DO" src="https://www.deploytodo.com/do-btn-blue.svg"/>
-  </a>
-</p>
+### Install Ruby Version Manager and Ruby
+```bash
+# Set up rbenv in your shell
+echo 'export PATH="$HOME/.rbenv/bin:$PATH"' >> ~/.zshrc
+echo 'eval "$(rbenv init -)"' >> ~/.zshrc
+source ~/.zshrc
 
-<img src="./.github/screenshots/dashboard.png#gh-light-mode-only" width="100%" alt="Chat dashboard dark mode"/>
-<img src="./.github/screenshots/dashboard-dark.png#gh-dark-mode-only" width="100%" alt="Chat dashboard"/>
+# Install Ruby 3.4.4 (required by Chatwoot)
+rbenv install 3.4.4
+```
 
----
+### Verify Ruby Installation
+```bash
+# Check if rbenv is working
+rbenv --version
 
-Chatwoot is the modern, open-source, and self-hosted customer support platform designed to help businesses deliver exceptional customer support experience. Built for scale and flexibility, Chatwoot gives you full control over your customer data while providing powerful tools to manage conversations across channels.
+# This should show Ruby 3.4.4
+ruby -v
+```
 
-### ✨ Captain – AI Agent for Support
+**⚠️ Troubleshooting**: If `ruby -v` still shows an old version:
+```bash
+# Manually load rbenv for current session
+export PATH="$HOME/.rbenv/bin:$PATH"
+eval "$(rbenv init -)"
+ruby -v
+```
 
-Supercharge your support with Captain, Chatwoot’s AI agent. Captain helps automate responses, handle common queries, and reduce agent workload—ensuring customers get instant, accurate answers. With Captain, your team can focus on complex conversations while routine questions are resolved automatically. Read more about Captain [here](https://chwt.app/captain-docs).
+## Step 2: Handle Node.js Version Conflicts
 
-### 💬 Omnichannel Support Desk
+### Check Current Node.js Setup
+```bash
+# Check what Node versions are installed
+brew list | grep node
+which node
+node -v
+```
 
-Chatwoot centralizes all customer conversations into one powerful inbox, no matter where your customers reach out from. It supports live chat on your website, email, Facebook, Instagram, Twitter, WhatsApp, Telegram, Line, SMS etc.
+### Fix Node.js Priority Issues
+```bash
+# Ensure Homebrew's Node.js takes priority
+echo 'export PATH="/opt/homebrew/bin:$PATH"' >> ~/.zshrc
+source ~/.zshrc
 
-### 📚 Help center portal
+# Verify correct Node.js version (should be 18+)
+node -v
+```
 
-Publish help articles, FAQs, and guides through the built-in Help Center Portal. Enable customers to find answers on their own, reduce repetitive queries, and keep your support team focused on more complex issues.
+### Install pnpm (Node Package Manager)
+```bash
+# Install pnpm globally
+npm install -g pnpm
 
-### 🗂️ Other features
+# Verify installation
+pnpm --version
+```
 
-#### Collaboration & Productivity
+**⚠️ Troubleshooting**: If you get Node.js version errors:
+- You may have multiple Node.js versions installed
+- Keep both if needed (MongoDB might require older version)
+- Use full paths: `/opt/homebrew/bin/npm install -g pnpm`
 
-- Private Notes and @mentions for internal team discussions.
-- Labels to organize and categorize conversations.
-- Keyboard Shortcuts and a Command Bar for quick navigation.
-- Canned Responses to reply faster to frequently asked questions.
-- Auto-Assignment to route conversations based on agent availability.
-- Multi-lingual Support to serve customers in multiple languages.
-- Custom Views and Filters for better inbox organization.
-- Business Hours and Auto-Responders to manage response expectations.
-- Teams and Automation tools for scaling support workflows.
-- Agent Capacity Management to balance workload across the team.
+## Step 3: PostgreSQL Setup with Proper Permissions
 
-#### Customer Data & Segmentation
-- Contact Management with profiles and interaction history.
-- Contact Segments and Notes for targeted communication.
-- Campaigns to proactively engage customers.
-- Custom Attributes for storing additional customer data.
-- Pre-Chat Forms to collect user information before starting conversations.
+### Start PostgreSQL Service
+```bash
+# Start PostgreSQL
+brew services start postgresql
 
-#### Integrations
-- Slack Integration to manage conversations directly from Slack.
-- Dialogflow Integration for chatbot automation.
-- Dashboard Apps to embed internal tools within Chatwoot.
-- Shopify Integration to view and manage customer orders right within Chatwoot.
-- Use Google Translate to translate messages from your customers in realtime.
-- Create and manage Linear tickets within Chatwoot.
+# Verify it's running
+brew services list | grep postgresql
+```
 
-#### Reports & Insights
-- Live View of ongoing conversations for real-time monitoring.
-- Conversation, Agent, Inbox, Label, and Team Reports for operational visibility.
-- CSAT Reports to measure customer satisfaction.
-- Downloadable Reports for offline analysis and reporting.
+### Create PostgreSQL User with Superuser Privileges
+```bash
+# Create postgres user with SUPERUSER privileges (important!)
+createuser -s postgres
 
+# Set password for the user
+psql postgres -c "ALTER USER postgres PASSWORD 'password';"
 
-## Documentation
+# Verify user has superuser privileges
+psql postgres -c "SELECT usename, usesuper FROM pg_user WHERE usename = 'postgres';"
+```
 
-Detailed documentation is available at [chatwoot.com/help-center](https://www.chatwoot.com/help-center).
+**🔑 Key Point**: Superuser privileges are essential for installing PostgreSQL extensions that Chatwoot requires.
 
-## Translation process
+### Install PostgreSQL Extensions
+```bash
+# Install pgvector extension (required for AI features)
+brew install pgvector
 
-The translation process for Chatwoot web and mobile app is managed at [https://translate.chatwoot.com](https://translate.chatwoot.com) using Crowdin. Please read the [translation guide](https://www.chatwoot.com/docs/contributing/translating-chatwoot-to-your-language) for contributing to Chatwoot.
+# Restart PostgreSQL to load new extensions
+brew services restart postgresql
+```
 
-## Branching model
+## Step 4: Redis Setup
+```bash
+# Start Redis service
+brew services start redis
 
-We use the [git-flow](https://nvie.com/posts/a-successful-git-branching-model/) branching model. The base branch is `develop`.
-If you are looking for a stable version, please use the `master` or tags labelled as `v1.x.x`.
+# Verify Redis is running
+brew services list | grep redis
+```
 
-## Deployment
+## Step 5: Project Setup
 
-### Heroku one-click deploy
+### Navigate to Your Project
+```bash
+cd ~/RubymineProjects/chatbot_test
+# or wherever your Chatwoot project is located
+```
 
-Deploying Chatwoot to Heroku is a breeze. It's as simple as clicking this button:
+### Set Ruby Version for Project
+```bash
+# Set Ruby 3.4.4 for this project
+rbenv local 3.4.4
 
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/chatwoot/chatwoot/tree/master)
+# Verify project is using correct Ruby
+ruby -v
+```
 
-Follow this [link](https://www.chatwoot.com/docs/environment-variables) to understand setting the correct environment variables for the app to work with all the features. There might be breakages if you do not set the relevant environment variables.
+### Create Environment Variables
+```bash
+# Create .env file with database credentials
+cat > .env << EOF
+POSTGRES_DATABASE=chatwoot_dev
+POSTGRES_USERNAME=postgres
+POSTGRES_PASSWORD=password
+EOF
+```
 
+**📝 Note**: The project already has `dotenv-rails` gem, so no need to add it again.
 
-### DigitalOcean 1-Click Kubernetes deployment
+## Step 6: Install Dependencies
 
-Chatwoot now supports 1-Click deployment to DigitalOcean as a kubernetes app.
+### Install Ruby Gems
+```bash
+# Install all Ruby dependencies
+bundle install
+```
 
-<a href="https://marketplace.digitalocean.com/apps/chatwoot?refcode=f2238426a2a8" alt="Deploy to DigitalOcean">
-  <img width="200" alt="Deploy to DO" src="https://www.deploytodo.com/do-btn-blue.svg"/>
-</a>
+**⚠️ Troubleshooting**: If you get a Gemfile syntax error:
+- Check for accidentally pasted text in Gemfile (like `pnpm install`)
+- Remove any duplicate gem entries
 
-### Other deployment options
+### Install Node.js Packages
+```bash
+# Install frontend dependencies
+pnpm install
+```
 
-For other supported options, checkout our [deployment page](https://chatwoot.com/deploy).
+## Step 7: Database Creation and Migration
 
-## Security
+### Create Database
+```bash
+# Create the development database
+bin/rails db:create
+```
 
-Looking to report a vulnerability? Please refer our [SECURITY.md](./SECURITY.md) file.
+### Handle Migration Issues
 
-## Community
+**Issue 1: Extension Permission Errors**
+If you get `permission denied to create extension "pg_stat_statements"`:
+```bash
+# This should already be fixed with superuser setup, but if not:
+psql postgres -c "ALTER USER postgres WITH SUPERUSER;"
+```
 
-If you need help or just want to hang out, come, say hi on our [Discord](https://discord.gg/cJXdrwS) server.
+**Issue 2: Acts-as-taggable-on Error**
+If migration fails with `uninitialized constant ActsAsTaggableOn::Taggable::Cache`:
+```bash
+# Edit the problematic migration file
+nano db/migrate/*_add_cached_labels_list.rb
 
-## Contributors
+# Comment out or remove this line:
+# ActsAsTaggableOn::Taggable::Cache.included(Conversation)
+```
 
-Thanks goes to all these [wonderful people](https://www.chatwoot.com/docs/contributors):
+**Issue 3: Vector Extension Error**
+If you get `could not open extension control file vector.control`:
+```bash
+# This should be fixed with pgvector installation, but verify:
+brew install pgvector
+brew services restart postgresql
+```
 
-<a href="https://github.com/chatwoot/chatwoot/graphs/contributors"><img src="https://opencollective.com/chatwoot/contributors.svg?width=890&button=false" /></a>
+### Run Migrations
+```bash
+# Run all database migrations
+bin/rails db:migrate
+```
 
+## Step 8: Configure Vite for Frontend Assets
 
-*Chatwoot* &copy; 2017-2025, Chatwoot Inc - Released under the MIT License.
+### Fix Vite Host Configuration
+```bash
+# Edit Vite configuration to prevent WebSocket issues
+nano config/vite.json
+```
+
+Add host configuration:
+```json
+{
+  "all": {
+    "sourceCodeDir": "app/javascript",
+    "watchAdditionalPaths": []
+  },
+  "development": {
+    "autoBuild": true,
+    "publicOutputDir": "vite-dev",
+    "port": 3036,
+    "host": "127.0.0.1"
+  },
+  "test": {
+    "autoBuild": true,
+    "publicOutputDir": "vite-test",
+    "port": 3037,
+    "host": "127.0.0.1"
+  }
+}
+```
+
+## Step 9: Start Development Services
+
+### Install Overmind (Process Manager)
+```bash
+# Install tmux and overmind for managing multiple processes
+brew install tmux overmind
+```
+
+### Start All Services
+```bash
+# This starts Rails server, Vite dev server, and Sidekiq worker
+pnpm run dev
+```
+
+**✅ Success Indicators**:
+- Rails server running on port 3000
+- Vite dev server running on port 3036
+- No "server already running" errors
+- Vite WebSocket connection successful
+
+### Alternative: Manual Service Startup
+If `pnpm run dev` doesn't work:
+
+**Terminal 1 - Rails Server:**
+```bash
+bin/rails s -p 3000
+```
+
+**Terminal 2 - Vite Dev Server:**
+```bash
+bin/vite dev
+```
+
+**Terminal 3 - Sidekiq Worker:**
+```bash
+bundle exec sidekiq -C config/sidekiq.yml
+```
+
+## Step 10: User and Account Setup
+
+### Create Super Admin User
+```bash
+rails console
+```
+
+```ruby
+# Create super admin user
+SuperAdmin.create!(
+  email: 'admin@example.com',
+  password: 'Password123!',
+  name: 'Super Admin'
+)
+# Find your SuperAdmin user
+admin = SuperAdmin.find_by(email: 'admin@example.com')
+
+# Confirm the email
+admin.update(confirmed_at: Time.current)
+
+# Verify it worked
+admin.confirmed_at
+
+exit
+```
+
+### Create Account and Regular User
+```bash
+rails console
+```
+
+```ruby
+# Create an account (required for regular users)
+account = Account.create!(name: 'My Company')
+
+# Create regular user
+user = User.create!(
+  email: 'user@example.com',
+  password: 'Password123!',
+  name: 'Regular User'
+)
+
+# Confirm user email (skip verification)
+user.update(confirmed_at: Time.current)
+
+# Associate user with account
+AccountUser.create!(
+  account: account,
+  user: user,
+  role: 'administrator'
+)
+
+exit
+```
+
+**🔐 Password Requirements**: Must contain uppercase, lowercase, number, and special character.
+
+## Step 11: Verify Setup
+
+### Check Service Status
+```bash
+# Check what's running on each port
+lsof -i :3000  # Rails server
+lsof -i :3036  # Vite dev server
+lsof -i :6379  # Redis
+
+# Check service status
+brew services list | grep -E "(redis|postgresql)"
+```
+
+### Test Application Access
+
+**Super Admin Interface:**
+- URL: `http://127.0.0.1:3000/super_admin/sign_in`
+- Login: `admin@example.com` / `Password123!`
+
+**Regular User Interface:**
+- URL: `http://127.0.0.1:3000/app/login`
+- Login: `user@example.com` / `Password123!`
+
+**Root URL:**
+- URL: `http://127.0.0.1:3000/`
+- Should redirect to appropriate dashboard
+
+### Verify Frontend Assets
+- Pages should load without infinite loading wheels
+- Browser console should show: `[vite] connected.`
+- No WebSocket connection errors
+
+## RubyMine Configuration
+
+### Ruby SDK Configuration
+1. **RubyMine → Preferences → Languages & Frameworks → Ruby SDK and Gems**
+2. **Set Ruby interpreter to**: `/Users/[username]/.rbenv/versions/3.4.4/bin/ruby`
+
+### Node.js Configuration
+1. **RubyMine → Preferences → Languages & Frameworks → Node.js**
+2. **Node interpreter**: `/opt/homebrew/bin/node`
+3. **Package manager**: `pnpm` at `/opt/homebrew/bin/pnpm`
+
+### Rails Run Configuration
+1. **Run → Edit Configurations → + → Rails**
+2. **Settings**:
+   - Name: `Chatwoot Server`
+   - Ruby interpreter: `rbenv: 3.4.4`
+   - Server: `Default`
+   - Port: `3000`
+   - Environment: `development`
+3. **Environment Variables**:
+   ```
+   POSTGRES_DATABASE=chatwoot_dev
+   POSTGRES_USERNAME=postgres
+   POSTGRES_PASSWORD=password
+   ```
+
+## Common Issues and Quick Fixes
+
+### "Server Already Running" Error
+```bash
+# Remove stale PID file
+rm tmp/pids/server.pid
+
+# Or kill existing process
+lsof -i :3000
+kill -9 [PID]
+```
+
+### Loading Wheel Never Disappears
+- Ensure both Rails AND Vite are running
+- Check browser console for WebSocket errors
+- Verify Vite host configuration in `config/vite.json`
+
+### "No Rails Found in Interpreter"
+- Verify Ruby interpreter in RubyMine settings
+- Run `bundle install` to ensure Rails gem is installed
+- Restart RubyMine after changing Ruby interpreter
+
+### Authentication Issues
+- Create account before testing regular user login
+- Ensure user is associated with an account via `AccountUser`
+- Check if user email is confirmed
+
+### Database Connection Errors
+- Verify PostgreSQL is running: `brew services list | grep postgresql`
+- Check `.env` file has correct credentials
+- Ensure postgres user has correct password
+
+## Maintenance Commands
+
+### Restart All Services
+```bash
+# Stop services
+brew services stop postgresql redis
+pkill -f "rails\|vite\|sidekiq\|overmind"
+
+# Start services
+brew services start postgresql redis
+pnpm run dev
+```
+
+### Update Dependencies
+```bash
+# Update Ruby gems
+bundle update
+
+# Update Node packages
+pnpm update
+
+# Update system packages
+brew upgrade
+```
+
+### Reset Database
+```bash
+# Drop and recreate database
+bin/rails db:drop db:create db:migrate
+
+# Recreate users and accounts as needed
+```
+
+## Success Checklist
+
+- ✅ Ruby 3.4.4 installed and active
+- ✅ Node.js 18+ with pnpm working
+- ✅ PostgreSQL running with superuser postgres
+- ✅ Redis running
+- ✅ pgvector extension installed
+- ✅ Database created and migrated successfully
+- ✅ Rails server running on port 3000
+- ✅ Vite dev server running on port 3036 with WebSocket connection
+- ✅ Sidekiq worker running
+- ✅ Super admin user created
+- ✅ Account created with associated regular users
+- ✅ Both login interfaces accessible and functional
+- ✅ Frontend assets loading without errors
+
+## Getting Help
+
+If you encounter issues not covered in this guide:
+
+1. **Check service logs** in the terminals where services are running
+2. **Use browser developer tools** (`Cmd + Option + I`) to check for JavaScript errors
+3. **Check Rails console** (`rails console`) to verify database state
+4. **Verify service status** with `brew services list` and port checks with `lsof`
+
+## Development Workflow
+
+Once setup is complete:
+
+1. **Start development**: `pnpm run dev`
+2. **Access super admin**: `http://127.0.0.1:3000/super_admin/sign_in`
+3. **Access user interface**: `http://127.0.0.1:3000/app/login`
+4. **Stop development**: `Ctrl+C` in the terminal running `pnpm run dev`
+
+Your Chatwoot development environment is now ready for development!
