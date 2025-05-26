@@ -59,7 +59,18 @@ class Api::V1::Widget::MessagesController < Api::V1::Widget::BaseController
   end
 
   def message_update_params
-    params.permit(message: [{ submitted_values: [:name, :title, :value, { csat_survey_response: [:feedback_message, :rating] }] }])
+    params.permit(
+      message: [
+        { submitted_values: [:name, :title, :value, { csat_survey_response: [:feedback_message, :rating] }] },
+        :content,
+        { content_attributes: permit_content_attributes_keys }
+      ]
+    )
+  end
+
+  def permit_content_attributes_keys
+    # Allow specific known keys
+    [:is_highlighted, :priority, :category, :tags, :metadata]
   end
 
   def permitted_params
