@@ -1,5 +1,6 @@
 <script setup>
 import { onMounted, computed, ref, toRefs } from 'vue';
+import { messageStore } from '@/dashboard/store/messageStore.js';
 import { useTimeoutFn } from '@vueuse/core';
 import { provideMessageContext } from './provider.js';
 import { useTrack } from 'dashboard/composables';
@@ -130,6 +131,7 @@ const props = defineProps({
   sourceId: { type: String, default: '' }, // eslint-disable-line vue/no-unused-properties
 });
 
+const emit = defineEmits(['update:contentAttributes']);
 const contextMenuPosition = ref({});
 const showBackgroundHighlight = ref(false);
 const showContextMenu = ref(false);
@@ -376,6 +378,31 @@ const shouldRenderMessage = computed(() => {
   );
 });
 
+const isHighlighted = computed(() => messageStore.getIsHighlighted(props.id));
+
+function toggleIsHighlighted() {
+  const newValue = messageStore.toggleIsHighlighted(props.id);
+  emit('update:contentAttributes', {
+    id: props.id,
+    attributes: { is_highlighted: newValue },
+  });
+}
+
+/**
+ * Updates a specific content attribute of the message
+ * @param {string} key - The attribute key to update
+ * @param {any} value - The new value for the attribute
+ * @fires update:contentAttributes - Emits an event to the parent component with the updated attributes
+ */
+
+// eslint-disable-next-line no-unused-vars
+function updateContentAttribute(key, value) {
+  emit('update:contentAttributes', {
+    id: props.id,
+    attributes: { [key]: value },
+  });
+}
+
 function openContextMenu(e) {
   const shouldSkipContextMenu =
     e.target?.classList.contains('skip-context-menu') ||
@@ -476,8 +503,10 @@ provideMessageContext({
       {
         'group-with-next': shouldGroupWithNext,
         'bg-n-alpha-1': showBackgroundHighlight,
+        'bubble-highlighted': isHighlighted,
       },
     ]"
+    @click="toggleIsHighlighted"
   >
     <div v-if="variant === MESSAGE_VARIANTS.ACTIVITY">
       <ActivityBubble :content="content" />
@@ -546,5 +575,10 @@ provideMessageContext({
   .right-bubble {
     @apply ltr:rounded-tr-sm rtl:rounded-tl-sm;
   }
+}
+
+.message-bubble-container.bubble-highlighted {
+  background-color: #ffdddd !important;
+  border: 2px solid #08ff00 !important;
 }
 </style>

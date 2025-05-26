@@ -1,6 +1,7 @@
 <script setup>
-import { defineProps, computed } from 'vue';
+import { defineProps, computed, onMounted } from 'vue';
 import Message from './Message.vue';
+import { messageStore } from 'dashboard/store/messageStore.js';
 import { MESSAGE_TYPES } from './constants.js';
 import { useCamelCase } from 'dashboard/composables/useTransformKeys';
 
@@ -95,6 +96,42 @@ const getInReplyToMessage = parentMessage => {
 
   return replyMessage ? useCamelCase(replyMessage) : null;
 };
+
+/**
+ * Handles updates to content attributes
+ * @param {Object} contentAttributes - The updated content attributes
+ */
+
+function handleContentAttributesUpdate(payload) {
+  // Update the message data in allMessages
+  const messageIndex = allMessages.value.findIndex(
+    m => String(m.id) === String(payload.id)
+  );
+
+  if (messageIndex !== -1) {
+    const oldMessage = allMessages.value[messageIndex];
+    const newMessage = {
+      ...oldMessage,
+      contentAttributes: {
+        ...oldMessage.contentAttributes,
+        ...payload.attributes,
+      },
+    };
+    allMessages.value[messageIndex] = newMessage;
+  }
+}
+
+onMounted(() => {
+  // Initialize store with existing message states
+  allMessages.value.forEach(message => {
+    if (message.contentAttributes?.is_highlighted !== undefined) {
+      messageStore.setIsHighlighted(
+        message.id,
+        message.contentAttributes.is_highlighted
+      );
+    }
+  });
+});
 </script>
 
 <template>
@@ -107,12 +144,14 @@ const getInReplyToMessage = parentMessage => {
       />
       <Message
         v-bind="message"
+        :content-attributes="message.contentAttributes"
         :is-email-inbox="isAnEmailChannel"
         :in-reply-to="getInReplyToMessage(message)"
         :group-with-next="shouldGroupWithNext(index, allMessages)"
         :inbox-supports-reply-to="inboxSupportsReplyTo"
         :current-user-id="currentUserId"
         data-clarity-mask="True"
+        @update:content-attributes="handleContentAttributesUpdate"
       />
     </template>
     <slot name="after" />
